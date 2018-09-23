@@ -25,6 +25,8 @@ var cursors;
 var score = 0;
 var gameOver = false;
 var scoreText;
+var healthText;
+var health = 3;
 
 var game = new Phaser.Game(config);
 
@@ -103,7 +105,8 @@ function create ()
     bombs = this.physics.add.group();
 
     //  The score
-    scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+    scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000' });
+    healthText = this.add.text(16, 40, 'Health: 3', { fontSize: '32px', fill: '#000'});
 
     //  Collide the player and the stars with the platforms
     this.physics.add.collider(player, platforms);
@@ -113,7 +116,8 @@ function create ()
     //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
     this.physics.add.overlap(player, stars, collectStar, null, this);
 
-    this.physics.add.collider(player, bombs, hitBomb, null, this);z
+    this.physics.add.collider(player, bombs, hitBomb, null, this);
+    this.cameras.main.startFollow(player);
 }
 
 function update ()
@@ -178,11 +182,20 @@ function collectStar (player, star)
 
 function hitBomb (player, bomb)
 {
-    this.physics.pause();
+    //this.physics.pause();
 
     player.setTint(0xff0000);
 
     player.anims.play('turn');
-
-    gameOver = true;
+    if (health > 1) {
+        health -= 1;
+        healthText.setText('Health: ' + health);
+        player.setTint(0xffffff);
+        bomb.disableBody(true, true);
+    }
+    else {
+        gameOver = true;
+        this.physics.pause();
+    }
+    
 }
